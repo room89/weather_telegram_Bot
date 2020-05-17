@@ -1,32 +1,47 @@
-import telegram
+import logging
+
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 import secdist
 
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+bot_log_file_handler = logging.FileHandler('bot.log')
+logger.addHandler(bot_log_file_handler)
+
+
+def start(bot, update):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hi!')
+
+
+def error(bot, update, error):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, error)
+    
+
 def main():
-    bot = telegram.Bot(token=secdist.secdist['bot']['token'])
-    while True:
-        try:
-            bot.get_updates(new_offset)
+    # Create the EventHandler and pass it your bot's token.
+    updater = Updater(secdist.get_token())
 
-            last_update = bot.get_last_update()
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
 
-            last_update_id = last_update['update_id']
-            last_chat_text = last_update['message']['text']
-            last_chat_id = last_update['message']['chat']['id']
+    dp.add_handler(CommandHandler("start", start))
 
-            if last_chat_text.lower() == '/hello':
-                bot.send_message(last_chat_id, 'Hello')
+    # log all errors
+    dp.add_error_handler(error)
 
-            new_offset = last_update_id + 1
-        except KeyboardInterrupt:
-            exit()
-        except IndexError:
-            pass
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        exit()
+    main()
