@@ -1,6 +1,6 @@
 import logging
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 
 import secdist
 
@@ -20,7 +20,7 @@ def start(bot, update):
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
-    
+
 
 def main():
     # Create the EventHandler and pass it your bot's token.
