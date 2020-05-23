@@ -1,5 +1,6 @@
 import logging
 
+import telegram
 from telegram.ext import Updater, CommandHandler
 
 from secdist import secdist
@@ -17,9 +18,17 @@ def start(bot, update):
     update.message.reply_text('Hi!')
 
 
-def error(bot, update, error):
+def error(bot: telegram.bot.Bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
+
+
+def hello(bot: telegram.bot.Bot, update: telegram.update.Update):
+    logger.debug(f'type of args: {type(bot)} {type(update)}')
+    logger.debug(f'{type(update.message)}')
+    message: telegram.message.Message = update.message
+    logger.debug(f'{message.chat}')
+    update.message.reply_text('Hello')
 
 
 def main():
@@ -29,7 +38,8 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('hello', hello))
 
     # log all errors
     dp.add_error_handler(error)
